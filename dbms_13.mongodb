@@ -1,0 +1,40 @@
+
+MongoDB Queries for 'users' Collection
+
+1. Create the 'users' collection:
+    use myDatabase;
+    db.createCollection("users");
+
+2. Insert 10 records with different variations:
+    db.users.insertMany([
+        { name: "John", age: 25, status: "paid" },
+        { name: "Alice", age: 30, status: "pending" },
+        { name: "Bob", age: 17, status: "paid" },
+        { name: "Charlie", age: 22, status: "rejected" },
+        { name: "David", age: 50, status: "paid" },
+        { name: "Eve", age: 45, status: "pending" },
+        { name: "Akshata", age: 19, status: "paid" },
+        { name: "Zara", age: 65, status: "paid" },
+        { name: "Sophia", age: 18, status: "rejected" },
+        { name: "Liam", age: 32, status: "pending" }
+    ]);
+
+3. Execute the following queries:
+
+   i) Display the first five records from the collection:
+        db.users.find().limit(5);
+
+   ii) Update status as “rejected” if age is less than 18:
+        db.users.updateMany(
+            { age: { $lt: 18 } },
+            { $set: { status: "rejected" } }
+        );
+
+   iii) Delete the record of the user whose name is 'Akshata':
+        db.users.deleteOne({ name: "Akshata" });
+
+   iv) Delete records having age greater than 50:
+        db.users.deleteMany({ age: { $gt: 50 } });
+
+   v) Display users having age less than 40 and status = 'paid':
+        db.users.find({ age: { $lt: 40 }, status: "paid" });
