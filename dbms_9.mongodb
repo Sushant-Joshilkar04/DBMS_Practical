@@ -1,64 +1,35 @@
-create database q8;
-use q8;
+db.zipcode.insertMany([
+  { city: "New York", state: "NY", population: 8175133 },
+  { city: "Los Angeles", state: "CA", population: 3792621 },
+  { city: "Chicago", state: "IL", population: 2695598 },
+  { city: "Houston", state: "TX", population: 2129784 },
+  { city: "Phoenix", state: "AZ", population: 1445632 },
+  { city: "San Antonio", state: "TX", population: 1327407 },
+  { city: "San Diego", state: "CA", population: 1419516 },
+  { city: "Dallas", state: "TX", population: 1341075 },
+  { city: "San Jose", state: "CA", population: 945942 },
+  { city: "Austin", state: "TX", population: 790390 }
+]);
 
--- Create Customer table
-CREATE TABLE Customer (
-    Cid INT PRIMARY KEY,
-    CustName VARCHAR(100),
-    City VARCHAR(100)
-);
 
--- Create Product table
-CREATE TABLE Product (
-    Pid INT PRIMARY KEY,
-    ProductName VARCHAR(100),
-    Qty INT
-);
+db.zipcode.find().pretty();
 
--- Create Order table
-CREATE TABLE Orders (
-    Oid INT PRIMARY KEY,
-    Cid INT,
-    Pid INT,
-    Qty INT,
-    FOREIGN KEY (Cid) REFERENCES Customer(Cid),
-    FOREIGN KEY (Pid) REFERENCES Product(Pid)
-);
 
--- Insert data into Customer table
-INSERT INTO Customer (Cid, CustName, City)
-VALUES
-(1, 'John Doe', 'New York'),
-(2, 'Alice Smith', 'Los Angeles'),
-(3, 'Bob Brown', 'Chicago');
+db.zipcode.aggregate([
+  { $group: { _id: "$state", total_population: { $sum: "$population" } } }
+]);
 
--- Insert data into Product table
-INSERT INTO Product (Pid, ProductName, Qty)
-VALUES
-(101, 'Laptop', 50),
-(102, 'Phone', 100),
-(103, 'Tablet', 30);
 
-DELIMITER $$
+db.zipcode.aggregate([
+  { $match: { population: { $gt: 20000 } } },
+  { $group: { _id: "$state", total_population: { $sum: "$population" } } }
+]);
 
-CREATE TRIGGER update_product_qty_after_order
-AFTER INSERT ON `Orders`
-FOR EACH ROW
-BEGIN
-    UPDATE Product
-    SET Qty = Qty - NEW.Qty
-    WHERE Pid = NEW.Pid;
-END $$
 
-DELIMITER ;
+db.zipcode.createIndex({ state: 1 });
 
-SELECT * FROM Product;
 
--- Insert data into Order table
-INSERT INTO Orders (Oid, Cid, Pid, Qty)
-VALUES
-(1, 1, 101, 2),  -- John Doe ordered 2 Laptops
-(2, 2, 102, 1),  -- Alice Smith ordered 1 Phone
-(3, 3, 103, 3);  -- Bob Brown ordered 3 Tablets
 
-SELECT * FROM Orders;
+db.zipcode.getIndexes();
+
+
