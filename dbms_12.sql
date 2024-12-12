@@ -1,16 +1,17 @@
-create database q12;
-use q12;
+drop database practical;
+create database practical;
+use practical;
 
 CREATE TABLE supplier (
     supplierid INT PRIMARY KEY,
-    sname VARCHAR(100),
-    saddress VARCHAR(200)
+    sname VARCHAR(50),
+    saddress VARCHAR(100)
 );
 
 CREATE TABLE parts (
     part_id INT PRIMARY KEY,
-    part_name VARCHAR(100),
-    color VARCHAR(50)
+    part_name VARCHAR(50),
+    color VARCHAR(20)
 );
 
 CREATE TABLE catalog (
@@ -21,28 +22,31 @@ CREATE TABLE catalog (
     FOREIGN KEY (supplierid) REFERENCES supplier(supplierid),
     FOREIGN KEY (part_id) REFERENCES parts(part_id)
 );
--- Inserting data into the supplier table
+
 INSERT INTO supplier (supplierid, sname, saddress) VALUES
-(1, 'Supplier A', '1234 Elm St'),
-(2, 'Supplier B', '5678 Oak Ave'),
-(3, 'Supplier C', '91011 Pine Rd');
+(1, 'Supplier A', 'Address 1'),
+(2, 'Supplier B', 'Address 2'),
+(3, 'Supplier C', 'Address 3'),
+(4, 'Supplier D', 'Address 4');
 
--- Inserting data into the parts table
 INSERT INTO parts (part_id, part_name, color) VALUES
-(1, 'Part X', 'green'),
-(2, 'Part Y', 'blue'),
-(3, 'Part Z', 'green'),
-(4, 'Part W', 'red'),
-(5, 'Part V', 'blue');
+(1, 'Part 1', 'green'),
+(2, 'Part 2', 'blue'),
+(3, 'Part 3', 'red'),
+(4, 'Part 4', 'green'),
+(5, 'Part 5', 'blue');
 
--- Inserting data into the catalog table
 INSERT INTO catalog (supplierid, part_id, cost) VALUES
-(1, 1, 50.00),
-(1, 2, 60.00),
-(2, 3, 40.00),
-(2, 4, 30.00),
-(3, 5, 70.00),
-(3, 1, 55.00);
+(1, 1, 100.00), 
+(1, 2, 200.00), 
+(2, 1, 150.00), 
+(2, 3, 250.00),
+(3, 2, 300.00),
+(3, 4, 180.00), 
+(4, 3, 100.00), 
+(4, 4, 120.00); 
+
+INSERT INTO catalog (supplierid, part_id, cost) VALUES (2, 4, 100.00);
 
 SELECT DISTINCT s.sname
 FROM supplier s
@@ -50,44 +54,43 @@ JOIN catalog c ON s.supplierid = c.supplierid
 JOIN parts p ON c.part_id = p.part_id
 WHERE p.color = 'green';
 
-SELECT DISTINCT s.sname
-FROM supplier s
-JOIN catalog c ON s.supplierid = c.supplierid
-JOIN parts p ON c.part_id = p.part_id
-WHERE p.color IN ('blue', 'green')
-GROUP BY s.supplierid
-HAVING COUNT(DISTINCT p.color) = 2;
+select s.sname
+from supplier s
+join catalog c1 on s.supplierid = c1.supplierid
+join parts p1 on c1.part_id = p1.part_id
+join catalog c2 on s.supplierid = c2.supplierid
+join parts p2 on c2.part_id = p2.part_id
+where p1.color = 'green' AND p2.color = 'blue'; 
+
 
 SELECT s.sname
 FROM supplier s
-WHERE NOT EXISTS (
-    SELECT p.part_id
-    FROM parts p
-    WHERE NOT EXISTS (
-        SELECT c.supplierid
-        FROM catalog c
-        WHERE c.supplierid = s.supplierid
-        AND c.part_id = p.part_id
-    )
-);
+JOIN catalog c ON s.supplierid = c.supplierid
+JOIN parts p ON c.part_id = p.part_id
+GROUP BY s.supplierid, s.sname
+HAVING COUNT(DISTINCT p.part_id) = (SELECT COUNT(part_id) FROM parts);
 
-SELECT SUM(c.cost) AS total_cost_of_red_parts
+
+
+SELECT SUM(c.cost) AS total_cost
 FROM catalog c
 JOIN parts p ON c.part_id = p.part_id
 WHERE p.color = 'red';
 
-SELECT s.sname
+SELECT DISTINCT s.sname,c.cost
 FROM supplier s
 JOIN catalog c ON s.supplierid = c.supplierid
 JOIN parts p ON c.part_id = p.part_id
 WHERE p.color = 'green'
-AND c.cost = (
-    SELECT MIN(c1.cost)
-    FROM catalog c1
-    JOIN parts p1 ON c1.part_id = p1.part_id
-    WHERE p1.color = 'green'
-);
+order by c.cost
+limit 1 ;
 
+select * from parts;
 UPDATE parts
-SET color = 'yellow'
-WHERE part_id = 4;
+SET color = 'new_color_value'
+WHERE part_id = 4
+AND EXISTS (
+    SELECT 1
+    FROM catalog
+    WHERE supplierid = 2 AND catalog.part_id = parts.part_id
+);
