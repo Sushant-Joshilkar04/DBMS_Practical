@@ -1,49 +1,52 @@
-create database q16;
-use q16;
+drop database practical;
+create database practical;
+use practical;
 
 CREATE TABLE Customer (
-    customer_id INT AUTO_INCREMENT PRIMARY KEY,
-    customer_name VARCHAR(255) NOT NULL,
-    email VARCHAR(255) NOT NULL,
+    customer_id INT PRIMARY KEY,
+    customer_name VARCHAR(100),
+    email VARCHAR(100),
     phone_number VARCHAR(20)
 );
 
-INSERT INTO Customer (customer_name, email, phone_number)
+INSERT INTO Customer (customer_id, customer_name, email, phone_number) 
 VALUES
-    ('John Doe', 'john.doe@example.com', '123-456-7890'),
-    ('Jane Smith', 'jane.smith@example.com', '987-654-3210'),
-    ('Alice Johnson', 'alice.johnson@example.com', '555-555-5555'),
-    ('Bob Brown', 'bob.brown@example.com', '111-222-3333');
+(1, 'John Doe', 'john.doe@example.com', '123-456-7890'),
+(2, 'Jane Smith', 'jane.smith@example.com', '987-654-3210'),
+(3, 'Alice Johnson', 'alice.johnson@example.com', '555-555-5555');
 
 DELIMITER $$
 
 CREATE PROCEDURE GetCustomerNames()
 BEGIN
-    DECLARE done INT DEFAULT FALSE;
-    DECLARE customer_name VARCHAR(255);
+    DECLARE done INT DEFAULT 0;
+    DECLARE customer_name VARCHAR(100);
+    DECLARE cur CURSOR FOR SELECT customer_name FROM Customer;
+
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
     
-    DECLARE customer_cursor CURSOR FOR 
-        SELECT customer_name FROM Customer;
+
+    OPEN cur;
     
-    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
-    
-    OPEN customer_cursor;
-    
+
     read_loop: LOOP
-        FETCH customer_cursor INTO customer_name;
-        
+        FETCH cur INTO customer_name;
         IF done THEN
             LEAVE read_loop;
         END IF;
         
+      
         SELECT customer_name;
     END LOOP;
     
-    CLOSE customer_cursor;
-END$$
+    
+    CLOSE cur;
+END $$
 
 DELIMITER ;
 
+
+
 CALL GetCustomerNames();
 
-SELECT customer_name FROM Customer;
+SELECT * FROM Customer;
