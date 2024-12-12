@@ -1,89 +1,43 @@
-use Q3
+db.restaurants.insertOne({
+  "RestaurantId": ObjectId(),
+  "Name": "The Culinary Spot",
+  "Cuisine": "Italian",
+  "Score": 90,
+  "Address": "123 Pasta Street, Rome, Italy"
+})
+
 db.restaurants.insertMany([
   {
     "RestaurantId": ObjectId(),
-    "Name": "The Gourmet Spot",
+    "Name": "Pizza Paradise",
     "Cuisine": "Italian",
     "Score": 85,
-    "Address": {
-      "Street": "123 Pasta Lane",
-      "City": "New York",
-      "State": "NY",
-      "Zipcode": "10001"
-    }
+    "Address": "456 Cheese Ave, Milan, Italy"
   },
   {
     "RestaurantId": ObjectId(),
-    "Name": "Curry Delight",
-    "Cuisine": "Indian",
-    "Score": 90,
-    "Address": {
-      "Street": "456 Spice Ave",
-      "City": "San Francisco",
-      "State": "CA",
-      "Zipcode": "94105"
-    }
-  },
-  {
-    "RestaurantId": ObjectId(),
-    "Name": "Sushi Express",
+    "Name": "Sushi Haven",
     "Cuisine": "Japanese",
-    "Score": 78,
-    "Address": {
-      "Street": "789 Sushi St",
-      "City": "Seattle",
-      "State": "WA",
-      "Zipcode": "98101"
-    }
-  },
-  {
-    "RestaurantId": ObjectId(),
-    "Name": "Taco Fiesta",
-    "Cuisine": "Mexican",
-    "Score": 88,
-    "Address": {
-      "Street": "101 Taco Way",
-      "City": "Austin",
-      "State": "TX",
-      "Zipcode": "73301"
-    }
-  },
-  {
-    "RestaurantId": ObjectId(),
-    "Name": "Burger Haven",
-    "Cuisine": "American",
     "Score": 92,
-    "Address": {
-      "Street": "202 Burger Blvd",
-      "City": "Chicago",
-      "State": "IL",
-      "Zipcode": "60601"
-    }
-  },
-  {
-    "RestaurantId": ObjectId(),
-    "Name": "Pho Paradise",
-    "Cuisine": "Vietnamese",
-    "Score": 81,
-    "Address": {
-      "Street": "303 Pho Drive",
-      "City": "Denver",
-      "State": "CO",
-      "Zipcode": "80202"
-    }
+    "Address": "789 Sushi Blvd, Tokyo, Japan"
   }
 ])
->db.restaurants.find()
->db.restaurants.find(
-  {},
-  { Name: 1, Cuisine: 1, Score: 1, _id: 0}
-)
->db.restaurants.find(
-  { Score: { $gt: 80 } }
-)
->db.restaurants.find()
-  .sort({ Score: -1 })
-  .limit(1)
->db.restaurants.aggregate([
+
+
+db.restaurants.find()
+
+
+db.restaurants.find({}, { "_id": 0, "Name": 1, "Cuisine": 1, "Score": 1 })
+
+
+db.restaurants.find({ "Score": { $gt: 80 } })
+
+
+db.restaurants.find().sort({ "Score": -1 }).limit(1)
+
+
+db.restaurants.aggregate([
   { $group: { _id: "$Cuisine", count: { $sum: 1 } } }
 ])
+
+
