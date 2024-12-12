@@ -1,0 +1,59 @@
+db.zipcode.insertMany([
+  { city: "New York", state: "NY", population: 8175133 },
+  { city: "Los Angeles", state: "CA", population: 3792621 },
+  { city: "Chicago", state: "IL", population: 2695598 },
+  { city: "Houston", state: "TX", population: 2129784 },
+  { city: "Phoenix", state: "AZ", population: 1445632 },
+  { city: "Philadelphia", state: "PA", population: 1584201 },
+  { city: "San Antonio", state: "TX", population: 1327407 },
+  { city: "San Diego", state: "CA", population: 1419516 },
+  { city: "Dallas", state: "TX", population: 1341075 },
+  { city: "San Jose", state: "CA", population: 945942 }
+]);
+
+
+db.zipcode.find().pretty();
+
+
+db.zipcode.aggregate([
+  {
+    $group: {
+      _id: "$state",
+      totalPopulation: { $sum: "$population" }
+    }
+  }
+]);
+
+
+db.zipcode.aggregate([
+  {
+    $match: { population: { $gt: 20000 } }
+  },
+  {
+    $group: {
+      _id: "$state",
+      totalPopulation: { $sum: "$population" }
+    }
+  }
+]);
+
+
+db.zipcode.aggregate([
+  {
+    $group: {
+      _id: "$state",
+      averagePopulation: { $avg: "$population" }
+    }
+  }
+]);
+
+
+db.zipcode.aggregate([
+  {
+    $group: {
+      _id: "$state",
+      smallestPopulation: { $min: "$population" },
+      largestPopulation: { $max: "$population" }
+    }
+  }
+]);
