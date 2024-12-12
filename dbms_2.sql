@@ -1,66 +1,42 @@
-create database q2;
-use q2;
+drop database practical;
+create database practical;
+use practical;
 
-create table employee (
-	eid int auto_increment primary key,
-    ename varchar(255),
-    salary decimal(10,2)
+CREATE TABLE employee (
+    eid INT AUTO_INCREMENT PRIMARY KEY,
+    ename VARCHAR(100),
+    salary DECIMAL(10, 2)
 );
 
-create table manager (
-	eid int primary key,
-    ename varchar(255),
-    foreign key(eid) references employee(eid)
+
+CREATE TABLE project (
+    projectid INT PRIMARY KEY,
+    project_name VARCHAR(100),
+    manager INT,
+    FOREIGN KEY (manager) REFERENCES manager(eid)
 );
 
-create table project (
-	projectid int primary key,
-    project_name varchar(255),
-    manager int,
-    foreign key(manager) references manager(eid)
+
+CREATE TABLE manager (
+    eid INT PRIMARY KEY,
+    ename VARCHAR(100)
 );
 
-create table assignment (
-	projectid int,
-    eid int,
-    primary key(projectid, eid),
-    foreign key(projectid) references project(projectid),
-    foreign key(eid) references employee(eid)
+CREATE TABLE assignment (
+    projectid INT,
+    eid INT,
+    PRIMARY KEY (projectid, eid),
+    FOREIGN KEY (projectid) REFERENCES project(projectid),
+    FOREIGN KEY (eid) REFERENCES employee(eid)
 );
+select * from assignment;
 
--- Inserting data
-INSERT INTO employee (ename, salary) VALUES
-('Alice', 50000),
-('Bob', 60000),
-('Charlie', 55000),
-('David', 48000),
-('Eve', 70000);
+INSERT INTO employee (ename, salary) VALUES ('John Doe', 50000), ('Jane Smith', 60000), ('Alice Johnson', 70000);
+INSERT INTO project (projectid, project_name, manager) VALUES (1, 'Bank Management', 1), (2, 'Content Management', 2);
+INSERT INTO manager (eid, ename) VALUES (1, 'John Doe'), (2, 'Jane Smith');
+INSERT INTO assignment (projectid, eid) VALUES (1, 1), (1, 2), (2, 1), (2, 3);
 
-INSERT INTO manager (eid, ename) VALUES
-(1, 'Alice'),
-(2, 'Bob');
-
-INSERT INTO project (projectid, project_name, manager) VALUES
-(101, 'Bank Management', 1),
-(102, 'Content Management', 2),
-(103, 'Inventory Management', 1);
-
-INSERT INTO assignment (projectid, eid) VALUES
-(101, 1), -- Alice works on Bank Management
-(101, 2), -- Bob works on Bank Management
-(102, 1), -- Alice works on Content Management
-(102, 3), -- Charlie works on Content Management
-(103, 4), -- David works on Inventory Management
-(101, 5); -- Eve works on Bank Management
-
-
--- Queries
-
--- Modify eid to use auto_increment
-alter table employee modify eid int auto_increment;
-
--- Display employees working in both projects 'Bank Management' and 'Conent Management'
-SELECT e.eid, e.ename
+SELECT e.ename 
 FROM employee e
 JOIN assignment a1 ON e.eid = a1.eid
 JOIN project p1 ON a1.projectid = p1.projectid
@@ -68,22 +44,25 @@ JOIN assignment a2 ON e.eid = a2.eid
 JOIN project p2 ON a2.projectid = p2.projectid
 WHERE p1.project_name = 'Bank Management' AND p2.project_name = 'Content Management';
 
--- Display average salary of the organization
-select avg(salary) as average_salary from employee;
+SELECT AVG(salary) AS average_salary FROM employee;
 
--- Employees who do not work in 'Bank Management'
-select e.eid, e.ename
-from employee e
-where e.eid not in (
-	select a.eid
-    from assignment a
-    join project p on a.projectid = p.projectid
-    where p.project_name = 'Bank Management'
+SELECT e.ename 
+FROM employee e
+WHERE e.eid NOT IN (
+    SELECT a.eid
+    FROM assignment a
+    JOIN project p ON a.projectid = p.projectid
+    WHERE p.project_name = 'Bank Management'
 );
 
-DELETE FROM assignment WHERE eid = 5;
-DELETE FROM manager WHERE eid = 5;
-delete from employee where eid = 5;
+DELETE FROM employee WHERE eid = 5;
 
-select eid, ename, salary from employee
-where salary = (select max(salary) from employee);
+SELECT ename, salary 
+FROM employee 
+WHERE salary = (SELECT MAX(salary) FROM employee);
+select * from employee;
+-- OR
+SELECT ename ,salary
+FROM employee 
+ORDER BY salary DESC 
+LIMIT 1;
